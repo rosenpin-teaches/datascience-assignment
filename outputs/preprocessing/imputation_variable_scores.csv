@@ -1,4 +1,4 @@
-"dataset","imputation","variable","comparison","difference"
+"dataset","version","variable","comparison","difference"
 "Math",1,"sex","difference in category proportions",0.147826086956522
 "Math",1,"age","standardized difference in mean",0.0528096495601646
 "Math",1,"address","difference in category proportions",0.0285537891649946
