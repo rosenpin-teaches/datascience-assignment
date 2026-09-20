@@ -19,3 +19,10 @@ We analyse the Math and Portuguese datasets separately. The outcome is overall a
 `school`, `reason`, `traveltime`, `studytime`, `failures`, `schoolsup`, `paid`, `nursery`, `higher`, `health`, `absences`, `G1`, `G2`, `G3`
 
 These are school, academic, historical-education, or health variables. They are outside our chosen focus: demographic/home, family/home, and social/lifestyle characteristics.
+
+## Stage 2 — Check the raw data
+
+- Math: 395 rows; 35 rows are missing `Dalc` or `Walc`, leaving 360.
+- Portuguese: 649 rows; 61 rows are missing `Dalc` or `Walc`, leaving 588.
+- There are no duplicate rows and no values outside the expected ranges.
+- The remaining variables have missing values. We will handle these with MICE in the next stage.
