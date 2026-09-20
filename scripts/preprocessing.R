@@ -153,12 +153,9 @@ prepare_dataset <- function(data, dataset_name) {
     remove_selected_columns = TRUE
   )
 
-  write.csv(clean_data,
-            file.path(processed_dir, paste0(tolower(dataset_name), "_clean.csv")),
-            row.names = FALSE)
-  write.csv(model_data,
-            file.path(processed_dir, paste0(tolower(dataset_name), "_model_data.csv")),
-            row.names = FALSE)
+  # Save one final processed file per dataset, as in the original group code.
+  output_file <- if (dataset_name == "Math") "Math.csv" else "Lang.csv"
+  write.csv(model_data, file.path(processed_dir, output_file), row.names = FALSE)
 
   list(
     summary = dataset_summary,
