@@ -1,4 +1,4 @@
-# Data Science Assignment 2: Preprocessing
+# Preprocessing
 #
 # Steps:
 # 1. Load the Math and Portuguese datasets.
