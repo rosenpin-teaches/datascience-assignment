@@ -24,7 +24,8 @@ files <- c(Math = "math_mice_clean.csv", Portuguese = "portuguese_mice_clean.csv
 
 encode_one_dataset <- function(path, dataset) {
   clean_data <- read.csv(path, check.names = FALSE)
-  model_data <- clean_data[, c(model_inputs, "alc_score")]
+  # Keep Dalc and Walc separate until the group decides how to analyse alcohol.
+  model_data <- clean_data[, c(model_inputs, "Dalc", "Walc")]
   model_data[factor_inputs] <- lapply(model_data[factor_inputs], factor)
 
   # Remove one category per factor to avoid the dummy-variable trap in regression.
@@ -48,8 +49,8 @@ encode_one_dataset <- function(path, dataset) {
   data.frame(
     dataset = dataset,
     rows = nrow(encoded_data),
-    model_inputs = ncol(encoded_data) - 1,
-    outcome = "alc_score",
+    model_inputs = ncol(encoded_data) - 2,
+    outcomes = "Dalc and Walc",
     stringsAsFactors = FALSE
   )
 }

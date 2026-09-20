@@ -84,7 +84,6 @@ impute_one_dataset <- function(path, dataset) {
 
   # The proposal excludes rows with a missing alcohol outcome.
   data_for_analysis <- raw_data[!missing_outcome, c(model_inputs, "Dalc", "Walc")]
-  alc_score <- (data_for_analysis$Dalc + data_for_analysis$Walc) / 2
   data_for_analysis[factor_inputs] <- lapply(data_for_analysis[factor_inputs], factor)
 
   # We use m = 5 and maxit = 20 as in the course MICE example.
@@ -97,7 +96,6 @@ impute_one_dataset <- function(path, dataset) {
   selected_imputation <- mean_scores$imputation[which.min(mean_scores$mean_difference)]
 
   clean_data <- complete(imp, selected_imputation)
-  clean_data$alc_score <- alc_score
 
   list(
     clean_data = clean_data,
