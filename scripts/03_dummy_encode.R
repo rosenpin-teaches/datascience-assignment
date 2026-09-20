@@ -1,4 +1,5 @@
 # Assignment 2 — Stage 4: create numeric model inputs.
+# The course recommends dummy variables for nominal categories.
 # Run this script from the project root, after 02_mice_imputation.R.
 
 library(fastDummies)
@@ -26,7 +27,7 @@ encode_one_dataset <- function(path, dataset) {
   model_data <- clean_data[, c(model_inputs, "alc_score")]
   model_data[factor_inputs] <- lapply(model_data[factor_inputs], factor)
 
-  # Remove the first category of each factor to avoid the dummy-variable trap.
+  # Remove one category per factor to avoid the dummy-variable trap in regression.
   encoded_data <- dummy_cols(
     model_data,
     select_columns = factor_inputs,

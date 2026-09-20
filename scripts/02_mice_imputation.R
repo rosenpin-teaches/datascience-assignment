@@ -1,4 +1,6 @@
 # Assignment 2 — Stage 3: impute the selected model inputs with MICE.
+# This keeps the original group workflow: filter missing alcohol outcomes,
+# make categories factors, run MICE, choose one completed version, and continue.
 # Run this script from the project root, after 01_data_audit.R.
 
 library(mice)
@@ -29,8 +31,11 @@ read_students <- function(path) {
   read.csv(path, na.strings = c("", "NA"), check.names = FALSE)
 }
 
-# For each completed version, compare only imputed values with observed values.
-# Numeric variables use the mean; categorical variables use category proportions.
+# The lecture says to choose the version that best matches observed values.
+# We use one simple rule across all included fields:
+# - numeric fields: compare imputed and observed means;
+# - categorical fields: compare imputed and observed category proportions.
+# A smaller average difference means a closer match to the observed data.
 score_imputations <- function(imp, original, dataset) {
   imputed_variables <- names(imp$imp)[vapply(imp$imp, nrow, integer(1)) > 0]
   rows <- list()
@@ -79,8 +84,10 @@ impute_one_dataset <- function(path, dataset) {
 
   # The proposal excludes rows with a missing alcohol outcome.
   data_for_analysis <- raw_data[!missing_outcome, c(model_inputs, "Dalc", "Walc")]
+  alc_score <- (data_for_analysis$Dalc + data_for_analysis$Walc) / 2
   data_for_analysis[factor_inputs] <- lapply(data_for_analysis[factor_inputs], factor)
 
+  # We use m = 5 and maxit = 20 as in the course MICE example.
   set.seed(123)
   imp <- mice(data_for_analysis, m = 5, maxit = 20, printFlag = FALSE, seed = 123)
   scores <- score_imputations(imp, data_for_analysis, dataset)
@@ -90,7 +97,7 @@ impute_one_dataset <- function(path, dataset) {
   selected_imputation <- mean_scores$imputation[which.min(mean_scores$mean_difference)]
 
   clean_data <- complete(imp, selected_imputation)
-  clean_data$alc_score <- (clean_data$Dalc + clean_data$Walc) / 2
+  clean_data$alc_score <- alc_score
 
   list(
     clean_data = clean_data,

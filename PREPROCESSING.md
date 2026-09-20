@@ -29,8 +29,8 @@ These are school, academic, historical-education, or health variables. They are 
 
 ## Stage 3 — Impute missing model inputs
 
-- We changed categorical inputs into factors and ran MICE with 5 versions and 20 iterations.
-- We compared the imputed values with the observed values. Version 2 was the closest match for both datasets.
+- We changed categorical inputs into factors and ran MICE with 5 versions and 20 iterations, following the course example.
+- We compared the imputed values with the observed values. We selected the version with the smallest average difference; this was version 2 for both datasets.
 - The selected Math and Portuguese datasets have no missing values in the outcome or included model inputs.
 
 ## Stage 4 — Create numeric model inputs
