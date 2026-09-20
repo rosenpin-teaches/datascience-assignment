@@ -34,16 +34,20 @@ preprocess_data <- function(input_file, output_file, dataset_name) {
   )
 
   # Check the raw data.
-  cat("\n", dataset_name, "dataset\n", sep = "")
+  cat("\n", dataset_name, " dataset\n", sep = "")
+  # Check for fully identical rows.
   cat("Duplicates: ", sum(duplicated(dataset)), "\n", sep = "")
+  cat("\nstr dataset: \n", "", sep="")
   str(dataset)
+  cat("\nNumber of NAs for each column: \n", "", sep="")
   print(colSums(is.na(dataset)))
+  cat("\nSummary: \n", "", sep="")
   print(summary(dataset))
 
   # Remove students without both alcohol measures.
   dataset <- dataset %>% filter(!is.na(Dalc) & !is.na(Walc))
 
-  # Keep the selected inputs and the two separate alcohol outcomes.
+  # Keep selected fields and remove excluded fields.
   dataset <- dataset %>% select(all_of(c(model_inputs, "Dalc", "Walc")))
 
   # Change categorical variables to factors for MICE.
@@ -52,6 +56,8 @@ preprocess_data <- function(input_file, output_file, dataset_name) {
   # Create five MICE versions with 20 iterations.
   initial_mice <- mice(dataset, maxit = 0, printFlag = FALSE)
   mice_methods <- initial_mice$method
+  # Don't impute the alcohol consumption columns. Just to be safe.
+  # It shouldn't happen because we already removed rows with missing Dalc/Walc.
   mice_methods[c("Dalc", "Walc")] <- ""
 
   imputed_data <- mice(
@@ -65,14 +71,24 @@ preprocess_data <- function(input_file, output_file, dataset_name) {
 
   # Inspect observed and imputed values. Version 2 had the smallest average
   # difference from observed values across selected fields.
+  cat("\n", dataset_name, ": age\n", sep = "")
   print(summary(dataset$age))
   print(imputed_data$imp$age)
+
+  cat("\n", dataset_name, ": going out with friends\n", sep = "")
   print(summary(dataset$goout))
   print(imputed_data$imp$goout)
+
+  cat("\n", dataset_name, ": sex\n", sep = "")
   print(summary(dataset$sex))
   print(imputed_data$imp$sex)
 
+  # Choosing version 2 because it had the smallest average
+  # difference from observed values across selected fields.
   completed_data <- complete(imputed_data, 2)
+
+  # Make sure no missing values after imputation
+  cat("\n", dataset_name, ": missing values after imputation\n", sep = "")
   print(colSums(is.na(completed_data)))
 
   # Create dummy variables. One category is removed from each variable.
