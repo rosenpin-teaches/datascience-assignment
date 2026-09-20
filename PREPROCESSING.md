@@ -26,3 +26,9 @@ These are school, academic, historical-education, or health variables. They are 
 - Portuguese: 649 rows; 61 rows are missing `Dalc` or `Walc`, leaving 588.
 - There are no duplicate rows and no values outside the expected ranges.
 - The remaining variables have missing values. We will handle these with MICE in the next stage.
+
+## Stage 3 — Impute missing model inputs
+
+- We changed categorical inputs into factors and ran MICE with 5 versions and 20 iterations.
+- We compared the imputed values with the observed values. Version 2 was the closest match for both datasets.
+- The selected Math and Portuguese datasets have no missing values in the outcome or included model inputs.
