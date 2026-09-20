@@ -1,4 +1,4 @@
-# Data Science Assignment 2 — Preprocessing
+# Data Science Assignment 2: Preprocessing
 #
 # Open this project in RStudio, open this file, and click Source.
 # This script follows the group’s original workflow:
