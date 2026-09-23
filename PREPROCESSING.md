@@ -42,5 +42,5 @@ These are school, academic, historical-education, or health variables. They are 
 
 ## Outlier check
 
-- The raw data contain one 22-year-old in each dataset. Age 22 is within the stated 15 to 22 range, so these rows are kept.
-- All selected fields are within their stated ranges. Unusual but valid values are kept for exploration.
+- The raw data contain one 22-year-old in each dataset. This is unusual for secondary school. Both records list three past class failures, but we cannot confirm whether the ages are correct.
+- We keep these records for now and will check whether age-related results change without them. No other selected value was flagged as outside its recorded scale.
