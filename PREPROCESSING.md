@@ -2,7 +2,7 @@
 
 ## Stage 1: Choose fields
 
-We analyse the Math and Portuguese datasets separately. `Dalc` and `Walc` remain separate alcohol outcomes until the group agrees on the final analysis. They are not model inputs.
+We analyse the Math and Portuguese datasets separately. We use the average of `Dalc` and `Walc` as the main alcohol outcome. These fields are not model inputs.
 
 ### Included model inputs
 
@@ -29,9 +29,18 @@ These are school, academic, historical-education, or health variables. They are 
 - We compared the imputed values with the observed values. We selected the version with the smallest average difference; this was version 2 for both datasets.
 - The selected Math and Portuguese datasets have no missing values in `Dalc`, `Walc`, or the included model inputs.
 
-## Stage 4: Create numeric model inputs
+## Stage 4: Create the alcohol score and numeric model inputs
 
+- We calculate `alc_score = (Dalc + Walc) / 2`, giving the two survey measures equal weight. This is an average of the two ratings, not an estimate of total drinks in a week.
+- We keep `Dalc` and `Walc` to inspect workday and weekend drinking separately.
+- When predicting `alc_score`, exclude `Dalc` and `Walc` from the inputs. When clustering, exclude all three alcohol columns.
 - We changed each categorical input into 0/1 dummy variables.
 - We removed one category per variable as a baseline, to avoid the dummy-variable trap.
-- Each dataset now has 24 numeric model inputs. `Dalc` and `Walc` remain separate outcomes.
-- Standardization will happen later, separately for regression and clustering.
+- Each dataset has 24 numeric model inputs, the two original alcohol measures, and `alc_score`.
+- Scaling will happen in the analysis scripts. For regression, use training data to choose the imputation and scaling steps before evaluating on test data. For clustering, scale the chosen inputs before k-means.
+- These saved files are ready for exploration. The regression evaluation still needs its own train/test preparation.
+
+## Outlier check
+
+- The raw data contain one 22-year-old in each dataset. Age 22 is within the stated 15 to 22 range, so these rows are kept.
+- All selected fields are within their stated ranges. Unusual but valid values are kept for exploration.

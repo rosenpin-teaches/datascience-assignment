@@ -5,7 +5,8 @@
 # 2. Check duplicates, missing values, and summaries.
 # 3. Remove students without both alcohol measures.
 # 4. Impute missing values with MICE.
-# 5. Create dummy variables for later modelling.
+# 5. Calculate the average alcohol score.
+# 6. Create dummy variables for later modelling.
 
 library(dplyr)
 library(mice)
@@ -90,6 +91,10 @@ preprocess_data <- function(input_file, output_file, dataset_name) {
   # Make sure no missing values after imputation
   cat("\n", dataset_name, ": missing values after imputation\n", sep = "")
   print(colSums(is.na(completed_data)))
+
+  # Give workday and weekend alcohol scores equal weight.
+  completed_data <- completed_data %>%
+    mutate(alc_score = (Dalc + Walc) / 2)
 
   # Create dummy variables. One category is removed from each variable.
   model_data <- dummy_cols(
