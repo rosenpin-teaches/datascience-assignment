@@ -4,9 +4,10 @@
 # 1. Load the Math and Portuguese datasets.
 # 2. Check duplicates, missing values, and summaries.
 # 3. Remove students without both alcohol measures.
-# 4. Impute missing values with MICE.
-# 5. Calculate the average alcohol score.
-# 6. Create dummy variables for later modelling.
+# 4. Remove students aged 22.
+# 5. Impute missing values with MICE.
+# 6. Calculate the average alcohol score.
+# 7. Create dummy variables for later modelling.
 
 library(dplyr)
 library(mice)
@@ -27,7 +28,7 @@ factor_inputs <- c(
 )
 
 # Same preprocessing steps for each dataset.
-preprocess_data <- function(input_file, output_file, dataset_name) {
+preprocess_data <- function(input_file, output_file, dataset_name, mice_version) {
   dataset <- read.csv(
     input_file,
     na.strings = c("", "NA"),
@@ -47,6 +48,10 @@ preprocess_data <- function(input_file, output_file, dataset_name) {
 
   # Remove students without both alcohol measures.
   dataset <- dataset %>% filter(!is.na(Dalc) & !is.na(Walc))
+
+  # Remove students aged 22. Keep missing ages for MICE.
+  cat("Age 22 removed: ", sum(dataset$age == 22, na.rm = TRUE), "\n", sep = "")
+  dataset <- dataset %>% filter(is.na(age) | age != 22)
 
   # Keep selected fields and remove excluded fields.
   dataset <- dataset %>% select(all_of(c(model_inputs, "Dalc", "Walc")))
@@ -70,8 +75,7 @@ preprocess_data <- function(input_file, output_file, dataset_name) {
     printFlag = FALSE
   )
 
-  # Inspect observed and imputed values. Version 2 had the smallest average
-  # difference from observed values across selected fields.
+  # Inspect observed and imputed values.
   cat("\n", dataset_name, ": age\n", sep = "")
   print(summary(dataset$age))
   print(imputed_data$imp$age)
@@ -84,9 +88,9 @@ preprocess_data <- function(input_file, output_file, dataset_name) {
   print(summary(dataset$sex))
   print(imputed_data$imp$sex)
 
-  # Choosing version 2 because it had the smallest average
-  # difference from observed values across selected fields.
-  completed_data <- complete(imputed_data, 2)
+  # Use the version with the smallest average difference from observed values.
+  # After removing age 22: Math uses version 1, Portuguese uses version 5.
+  completed_data <- complete(imputed_data, mice_version)
 
   # Make sure no missing values after imputation
   cat("\n", dataset_name, ": missing values after imputation\n", sep = "")
@@ -113,12 +117,14 @@ preprocess_data <- function(input_file, output_file, dataset_name) {
 preprocess_data(
   input_file = "data/raw/student_mat.csv",
   output_file = "data/processed/Math.csv",
-  dataset_name = "Math"
+  dataset_name = "Math",
+  mice_version = 1
 )
 
 # Preprocess the Portuguese dataset.
 preprocess_data(
   input_file = "data/raw/student_por.csv",
   output_file = "data/processed/Lang.csv",
-  dataset_name = "Portuguese"
+  dataset_name = "Portuguese",
+  mice_version = 5
 )
