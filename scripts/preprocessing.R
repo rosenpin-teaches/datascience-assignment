@@ -1,4 +1,4 @@
-# Preprocessing
+# Preprocessing - where we pre process the data
 #
 # Steps:
 # 1. Load the Math and Portuguese datasets.
