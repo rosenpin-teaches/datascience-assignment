@@ -4,7 +4,7 @@
 # 1. Load the Math and Portuguese datasets.
 # 2. Check duplicates, missing values, and summaries.
 # 3. Remove students without both alcohol measures.
-# 4. Remove students aged 22.
+# 4. Remove students older than 20
 # 5. Impute missing values with MICE.
 # 6. Calculate the average alcohol score.
 # 7. Create dummy variables for later modelling.
@@ -49,9 +49,9 @@ preprocess_data <- function(input_file, output_file, dataset_name, mice_version)
   # Remove students without both alcohol measures.
   dataset <- dataset %>% filter(!is.na(Dalc) & !is.na(Walc))
 
-  # Remove students aged 22. Keep missing ages for MICE.
-  cat("Age 22 removed: ", sum(dataset$age == 22, na.rm = TRUE), "\n", sep = "")
-  dataset <- dataset %>% filter(is.na(age) | age != 22)
+  # Remove students older than 20. Keep missing ages for MICE.
+  dataset <- dataset %>% filter(is.na(age) | age < 20)
+  cat("Students aged 20+ removed: ", sum(dataset$age >= 20, na.rm = TRUE), "\n", sep = "")
 
   # Keep selected fields and remove excluded fields.
   dataset <- dataset %>% select(all_of(c(model_inputs, "Dalc", "Walc")))
