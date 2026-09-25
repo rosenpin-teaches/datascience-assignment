@@ -4,10 +4,11 @@
 # 1. Load the Math and Portuguese datasets.
 # 2. Check duplicates, missing values, and summaries.
 # 3. Remove students without both alcohol measures.
-# 4. Remove students aged 20 or older
+# 4. Remove students aged 20 or older.
 # 5. Impute missing values with MICE.
 # 6. Calculate the average alcohol score.
 # 7. Create dummy variables for later modelling.
+# 8. Save separate training and test data for research question 1.
 
 library(dplyr)
 library(mice)
@@ -49,7 +50,7 @@ preprocess_data <- function(input_file, output_file, dataset_name, mice_version)
   # Remove students without both alcohol measures.
   dataset <- dataset %>% filter(!is.na(Dalc) & !is.na(Walc))
 
-  # Remove students older than 20. Keep missing ages for MICE.
+  # Remove students aged 20 or older. Keep missing ages for MICE.
   cat("Students aged 20+ removed: ", sum(dataset$age >= 20, na.rm = TRUE), "\n", sep = "")
   dataset <- dataset %>% filter(is.na(age) | age < 20)
 
@@ -89,7 +90,7 @@ preprocess_data <- function(input_file, output_file, dataset_name, mice_version)
   print(imputed_data$imp$sex)
 
   # Use the version with the smallest average difference from observed values.
-  # After removing age 22: Math uses version 1, Portuguese uses version 5.
+  # Math uses version 1, Portuguese uses version 4.
   completed_data <- complete(imputed_data, mice_version)
 
   # Make sure no missing values after imputation
@@ -113,6 +114,82 @@ preprocess_data <- function(input_file, output_file, dataset_name, mice_version)
   write.csv(model_data, output_file, row.names = FALSE)
 }
 
+# Compare imputed values with observed values in the training data.
+imputation_score <- function(original, completed) {
+  scores <- c()
+
+  for (column in names(original)) {
+    missing <- is.na(original[[column]])
+    if (!any(missing)) next
+
+    observed <- original[[column]][!missing]
+    imputed <- completed[[column]][missing]
+
+    if (is.factor(original[[column]])) {
+      categories <- levels(original[[column]])
+      observed_share <- prop.table(table(factor(observed, levels = categories)))
+      imputed_share <- prop.table(table(factor(imputed, levels = categories)))
+      scores <- c(scores, sum(abs(observed_share - imputed_share)) / 2)
+    } else if (sd(observed) > 0) {
+      scores <- c(scores, abs(mean(observed) - mean(imputed)) / sd(observed))
+    }
+  }
+
+  mean(scores)
+}
+
+# Prepare training and test files for prediction.
+prepare_model_data <- function(input_file, train_file, test_file, dataset_name) {
+  dataset <- read.csv(input_file, na.strings = c("", "NA"), check.names = FALSE)
+
+  # Use the same students and fields as the full processed file.
+  dataset <- dataset %>% filter(!is.na(Dalc) & !is.na(Walc))
+  dataset <- dataset %>% filter(is.na(age) | age < 20)
+  dataset <- dataset %>% select(all_of(c(model_inputs, "Dalc", "Walc")))
+  dataset <- dataset %>% mutate(across(all_of(factor_inputs), as.factor))
+
+  # Set aside 30% of students before learning how to fill missing values.
+  set.seed(123)
+  train_rows <- sample(seq_len(nrow(dataset)), size = floor(0.7 * nrow(dataset)))
+  test_rows <- setdiff(seq_len(nrow(dataset)), train_rows)
+
+  # Learn the imputation from training inputs only. The test rows are filled
+  # in, but do not help fit MICE. Alcohol is not used to fill any input.
+  imputed_data <- mice(
+    dataset[, model_inputs],
+    ignore = !(seq_len(nrow(dataset)) %in% train_rows),
+    m = 5,
+    maxit = 20,
+    seed = 123,
+    printFlag = FALSE
+  )
+
+  # Choose the version closest to the observed training values.
+  scores <- c()
+  for (version in 1:5) {
+    completed <- complete(imputed_data, version)
+    scores[version] <- imputation_score(
+      dataset[train_rows, model_inputs], completed[train_rows, model_inputs]
+    )
+  }
+  selected_version <- which.min(scores)
+
+  completed <- complete(imputed_data, selected_version)
+  model_data <- dummy_cols(
+    completed,
+    select_columns = factor_inputs,
+    remove_first_dummy = TRUE,
+    remove_selected_columns = TRUE
+  )
+  model_data$alc_score <- (dataset$Dalc + dataset$Walc) / 2
+
+  write.csv(model_data[train_rows, ], train_file, row.names = FALSE)
+  write.csv(model_data[test_rows, ], test_file, row.names = FALSE)
+  cat("\n", dataset_name, " model data: ", length(train_rows), " training, ",
+      length(test_rows), " test students; MICE version ", selected_version,
+      "\n", sep = "")
+}
+
 # Preprocess the Math dataset.
 preprocess_data(
   input_file = "data/raw/student_mat.csv",
@@ -126,5 +203,20 @@ preprocess_data(
   input_file = "data/raw/student_por.csv",
   output_file = "data/processed/Lang.csv",
   dataset_name = "Portuguese",
-  mice_version = 5
+  mice_version = 4
+)
+
+# Save separate model files. The full files above remain for exploration.
+prepare_model_data(
+  input_file = "data/raw/student_mat.csv",
+  train_file = "data/processed/Math_train.csv",
+  test_file = "data/processed/Math_test.csv",
+  dataset_name = "Math"
+)
+
+prepare_model_data(
+  input_file = "data/raw/student_por.csv",
+  train_file = "data/processed/Lang_train.csv",
+  test_file = "data/processed/Lang_test.csv",
+  dataset_name = "Portuguese"
 )
