@@ -36,8 +36,4 @@ Eliska's Gower + PAM analysis is an extra comparison, not a taught course method
 - The data describe current associations, not causes or future risk.
 - One MICE version per dataset was used. Imputation was not repeated inside each CV fold, although test students were excluded from fitting.
 - Ratings are ordinal; averages and numerical models assume equally spaced steps.
-- Math k-means chose 6, the largest number tested. This is not an established optimum.
-
-Preparation details: [PREPROCESSING.md](PREPROCESSING.md). Exact results: [regression CSV](outputs/rq1/model_metrics.csv), [profile tests](outputs/rq2/profile_tests.csv), and [pairwise tests](outputs/rq2/profile_pairwise.csv).
-
-The report must disclose AI assistance and the group must understand the submitted code.
+- Math k-means chose 6, the largest number tested. This is not an established optimum. Checking with 10 now
