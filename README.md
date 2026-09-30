@@ -13,11 +13,11 @@ The script checks the raw data and saves full processed files for exploration, p
 
 After preprocessing, open `scripts/exploration.R` and click **Source** to run the exploratory analysis and create the figures.
 
-To answer the first research question, open `scripts/research_question_1.R` and click **Source**. Model comparisons and selected inputs appear in the Console, and tables and figures are saved in `outputs/rq1/`.
+To answer the first research question, open `scripts/research_question_1.R` and click **Source**. Model comparisons and selected inputs appear in the Console, and tables are saved in `outputs/rq1/`. Run `scripts/rq1_plots.R` afterward for figures and the additional error check.
 
 RQ1 compares ordinary regression, ridge, and LASSO with simple mean and median predictions. Ridge and LASSO choose their penalty using the training data. The main result is test MAE: the average prediction error on the 1 to 5 alcohol scale. RMSE shows larger errors more strongly, and R² shows how much of the variation in test scores the model explains. LASSO also lists the inputs it kept; these are associations, not proof of cause.
 
-For the second question, run `scripts/research_question_2.R`. K-means is the main course analysis; Gower + PAM is an additional comparison. Alcohol is excluded from clustering. Results are saved in `outputs/rq2/`.
+For the second question, run `scripts/research_question_2.R`, then `scripts/rq2_plots.R` for figures. K-means is the main course analysis; Gower + PAM is an additional comparison. Alcohol is excluded from clustering. Results are saved in `outputs/rq2/`.
 
 [FINDINGS.md](FINDINGS.md) contains the results, interpretation, and suggested figures for the report.
 

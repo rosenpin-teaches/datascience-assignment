@@ -5,10 +5,9 @@
 # 2. Cluster student inputs with k-means and compare with Gower + PAM.
 # 3. Choose the number of groups using silhouette scores, without alcohol.
 # 4. Describe the groups and compare alcohol scores using Kruskal-Wallis.
-# 5. Save tables and figures for the report.
+# 5. Save tables. Run rq2_plots.R separately for figures.
 
 library(cluster)
-library(ggplot2)
 library(dplyr)
 
 output_dir <- file.path("outputs", "rq2")
@@ -18,9 +17,6 @@ numeric_vars <- c("age", "Medu", "Fedu", "famrel", "freetime", "goout")
 binary_vars <- c("sex_M", "address_U", "famsize_LE3", "Pstatus_T",
                  "famsup_yes", "internet_yes", "activities_yes", "romantic_yes")
 nominal_vars <- c("Mjob", "Fjob", "guardian")
-numeric_labels <- c("Age", "Mother's education", "Father's education",
-                    "Family relationships", "Free time", "Going out")
-profile_colors <- c("#4477AA", "#EE6677", "#228833", "#CCBB44", "#AA3377", "#66CCEE")
 
 # The dropped category applies when all its dummy columns are zero.
 reconstruct_factor <- function(df, cols, reference_level) {
@@ -93,66 +89,9 @@ describe_profiles <- function(full, groups, distance, coordinates,
   print(alcohol, row.names = FALSE)
   if (nrow(pairwise) > 0) print(pairwise, row.names = FALSE)
 
-  alcohol_plot <- ggplot(full, aes(profile, alc_score, fill = profile)) +
-    geom_boxplot(outlier.shape = NA, alpha = 0.7) +
-    geom_jitter(width = 0.13, height = 0.02, alpha = 0.18, size = 1) +
-    stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white") +
-    scale_fill_manual(values = profile_colors, guide = "none") +
-    scale_x_discrete(labels = paste0(alcohol$profile, "\n(n=", alcohol$n, ")")) +
-    labs(title = paste(dataset_name, ": alcohol scores by", method, "profile"),
-         subtitle = "Alcohol was excluded from clustering; diamond = mean",
-         x = "Profile", y = "Average workday and weekend rating (1 to 5)") +
-    theme_minimal(base_size = 12)
-  ggsave(file.path(output_dir, paste0(file_prefix, "_alcohol.png")),
-         alcohol_plot, width = 7, height = 4.5, dpi = 300)
-
-  numeric_summary$label <- factor(
-    numeric_labels[match(numeric_summary$variable, numeric_vars)], levels = rev(numeric_labels)
-  )
-  profile_plot <- ggplot(numeric_summary, aes(profile, label, fill = standardized_mean)) +
-    geom_tile(color = "white") +
-    geom_text(aes(label = sprintf("%.2f", mean)), size = 3.5) +
-    scale_fill_gradient2(low = "#4477AA", mid = "white", high = "#EE6677",
-                         midpoint = 0, name = "Mean Z-score") +
-    labs(title = paste(dataset_name, ": characteristics of", method, "profiles"),
-         subtitle = "Numbers are original-scale means; color is relative to all students",
-         x = "Profile", y = NULL) + theme_minimal(base_size = 12)
-  ggsave(file.path(output_dir, paste0(file_prefix, "_profile_means.png")),
-         profile_plot, width = 7, height = 4.5, dpi = 300)
-
-  social <- full %>% group_by(profile) %>%
-    summarise(across(all_of(c("sex_M", "activities_yes", "famsup_yes", "romantic_yes")), mean),
-              .groups = "drop")
-  social_long <- data.frame()
-  social_labels <- c("Male", "Activities", "Family support", "Relationship")
-  for (i in 2:ncol(social)) {
-    social_long <- rbind(social_long, data.frame(
-      profile = social$profile, characteristic = social_labels[i - 1],
-      percent = social[[i]] * 100
-    ))
-  }
-  social_plot <- ggplot(social_long, aes(profile, percent, fill = profile)) +
-    geom_col() + geom_text(aes(label = paste0(round(percent), "%")), vjust = -0.4) +
-    facet_wrap(~ characteristic) + scale_y_continuous(limits = c(0, 110), breaks = c(0, 50, 100)) +
-    scale_fill_manual(values = profile_colors, guide = "none") +
-    labs(title = paste(dataset_name, ": social characteristics of", method, "profiles"),
-         x = "Profile", y = "Students (%)") + theme_minimal(base_size = 12)
-  ggsave(file.path(output_dir, paste0(file_prefix, "_social_profiles.png")),
-         social_plot, width = 8, height = 5, dpi = 300)
-
-  map <- data.frame(dimension1 = coordinates[, 1], dimension2 = coordinates[, 2],
-                     profile = full$profile)
-  map_plot <- ggplot(map, aes(dimension1, dimension2, color = profile)) +
-    geom_point(alpha = 0.55, size = 1.5) + scale_color_manual(values = profile_colors) +
-    labs(title = paste(dataset_name, ":", method, "profiles in two dimensions"),
-         subtitle = "A visual summary only; clustering used all inputs",
-         x = "Dimension 1", y = "Dimension 2", color = "Profile") +
-    theme_minimal(base_size = 12)
-  ggsave(file.path(output_dir, paste0(file_prefix, "_profile_map.png")),
-         map_plot, width = 7, height = 5, dpi = 300)
-
   assignments <- data.frame(prepared_row = seq_len(nrow(full)),
-                             profile = full$profile, alc_score = full$alc_score)
+                             profile = full$profile, alc_score = full$alc_score,
+                             dimension1 = coordinates[, 1], dimension2 = coordinates[, 2])
   write.csv(assignments, file.path(output_dir, paste0(file_prefix, "_assignments.csv")),
             row.names = FALSE)
   list(alcohol = alcohol, tests = tests, pairwise = pairwise,
@@ -195,6 +134,7 @@ profile_dataset <- function(train_file, test_file, dataset_name, file_prefix, k_
   }
   best_k <- choices$k[which.max(choices$silhouette)]
   best_kmeans <- fits[[as.character(best_k)]]
+  # Save two-dimensional coordinates for visualizing the already fitted groups.
   pca <- prcomp(kmeans_data, center = TRUE, scale. = FALSE)
   full$Mjob <- reconstruct_factor(full, mother_jobs, "at_home")
   full$Fjob <- reconstruct_factor(full, father_jobs, "at_home")
@@ -216,7 +156,8 @@ profile_dataset <- function(train_file, test_file, dataset_name, file_prefix, k_
       method = "Gower + PAM", k = k, silhouette = fit$silinfo$avg.width, within_ss = NA
     ))
   }
-  best_pam <- pam_fits[[as.character(pam_choices$k[which.max(pam_choices$silhouette)])]]
+  best_pam_k <- pam_choices$k[which.max(pam_choices$silhouette)]
+  best_pam <- pam_fits[[as.character(best_pam_k)]]
   pam_map <- cmdscale(gower, k = 2, add = TRUE)$points
   pam_result <- describe_profiles(full, best_pam$clustering, gower, pam_map,
                                  "Gower + PAM", dataset_name, paste0(file_prefix, "_pam"))
@@ -225,22 +166,6 @@ profile_dataset <- function(train_file, test_file, dataset_name, file_prefix, k_
 
   choices <- rbind(choices, pam_choices)
   choices$dataset <- dataset_name
-  choice_plot <- ggplot(choices, aes(k, silhouette)) +
-    geom_line(color = "#4477AA") + geom_point(color = "#4477AA") + facet_wrap(~ method) +
-    scale_x_continuous(breaks = k_range) +
-    labs(title = paste(dataset_name, ": choosing the number of profiles"),
-         subtitle = "Choose the largest silhouette within each method; alcohol is not used",
-         x = "Number of profiles", y = "Average silhouette") + theme_minimal(base_size = 12)
-  ggsave(file.path(output_dir, paste0(file_prefix, "_silhouettes.png")),
-         choice_plot, width = 9, height = 4, dpi = 300)
-  elbow_plot <- ggplot(choices %>% filter(method == "K-means"), aes(k, within_ss)) +
-    geom_line(color = "#4477AA") + geom_point(color = "#4477AA") +
-    scale_x_continuous(breaks = k_range) +
-    labs(title = paste(dataset_name, ": k-means elbow plot"),
-         x = "Number of profiles", y = "Within-cluster sum of squares") +
-    theme_minimal(base_size = 12)
-  ggsave(file.path(output_dir, paste0(file_prefix, "_elbow.png")),
-         elbow_plot, width = 6, height = 4, dpi = 300)
   list(kmeans = km, pam = pam_result, choices = choices,
        kmeans_fit = best_kmeans, pam_fit = best_pam)
 }
@@ -254,24 +179,3 @@ for (table_name in c("alcohol", "tests", "pairwise", "numeric", "categories")) {
 }
 write.csv(rbind(math_profiles$choices, portuguese_profiles$choices),
           file.path(output_dir, "cluster_choices.csv"), row.names = FALSE)
-
-kmeans_students <- rbind(
-  math_profiles$kmeans$students %>% mutate(dataset = "Math"),
-  portuguese_profiles$kmeans$students %>% mutate(dataset = "Portuguese")
-)
-test_subtitle <- paste0(
-  "Kruskal-Wallis: Math p = ", formatC(math_profiles$kmeans$tests$p, format = "f", digits = 3),
-  "; Portuguese p = ", formatC(portuguese_profiles$kmeans$tests$p, format = "f", digits = 3)
-)
-alcohol_comparison <- ggplot(kmeans_students, aes(profile, alc_score, fill = profile)) +
-  geom_boxplot(outlier.shape = NA, alpha = 0.7) +
-  geom_jitter(width = 0.13, height = 0.02, alpha = 0.12, size = 1) +
-  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white") +
-  facet_wrap(~ dataset, scales = "free_x") + scale_fill_manual(values = profile_colors, guide = "none") +
-  labs(title = "Alcohol scores by k-means profile",
-       subtitle = test_subtitle,
-       x = "Profile", y = "Average workday and weekend rating (1 to 5)",
-       caption = "Diamond = mean. Profile numbers are separate labels within each dataset.") +
-  theme_minimal(base_size = 12)
-ggsave(file.path(output_dir, "kmeans_alcohol_comparison.png"), alcohol_comparison,
-       width = 9, height = 5, dpi = 300)
