@@ -1,0 +1,8 @@
+"group1","group2","adjusted_p","dataset","method"
+"2","1",0.00646242097237426,"Math","Gower + PAM"
+"3","1",1,"Math","Gower + PAM"
+"4","1",0.705614166398864,"Math","Gower + PAM"
+"3","2",0.190894341331794,"Math","Gower + PAM"
+"4","2",0.675553426870665,"Math","Gower + PAM"
+"4","3",1,"Math","Gower + PAM"
+"2","1",1.01456229195662e-07,"Portuguese","Gower + PAM"

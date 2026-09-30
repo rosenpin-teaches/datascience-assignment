@@ -1,0 +1,145 @@
+"model","input","coefficient","standardized_coefficient","label","dataset","selected"
+"Ordinary regression","age",0.0446655254628539,0.0554183992217829,"Age","Math",FALSE
+"Ordinary regression","Medu",0.000189380346283279,0.000204459198447281,"Mother's education","Math",FALSE
+"Ordinary regression","Fedu",0.0576490197744181,0.0635230145156162,"Father's education","Math",FALSE
+"Ordinary regression","famrel",-0.124794335631969,-0.11078977727412,"Family relationships","Math",FALSE
+"Ordinary regression","freetime",0.0625613424917295,0.0628989954511117,"Free time","Math",FALSE
+"Ordinary regression","goout",0.298830881807637,0.341655790365763,"Going out","Math",FALSE
+"Ordinary regression","sex_M",0.474317684733646,0.235121370872073,"Male","Math",FALSE
+"Ordinary regression","address_U",-0.349528476226044,-0.143569929495412,"Urban address","Math",FALSE
+"Ordinary regression","famsize_LE3",0.221428827969822,0.101120753869765,"Family size <= 3","Math",FALSE
+"Ordinary regression","Pstatus_T",0.130482466118185,0.0426350437914219,"Parents together","Math",FALSE
+"Ordinary regression","Mjob_health",-0.209538010384169,-0.0571703591031389,"Mother: health","Math",FALSE
+"Ordinary regression","Mjob_other",-0.0452765526160418,-0.0219637432514544,"Mother: other job","Math",FALSE
+"Ordinary regression","Mjob_services",-0.0507387634400794,-0.0209827935011051,"Mother: services","Math",FALSE
+"Ordinary regression","Mjob_teacher",-0.0794417702113714,-0.0306781291791893,"Mother: teacher","Math",FALSE
+"Ordinary regression","Fjob_health",-0.335498183320055,-0.0849466597746101,"Father: health","Math",FALSE
+"Ordinary regression","Fjob_other",-0.0708578202783558,-0.0353605960831619,"Father: other job","Math",FALSE
+"Ordinary regression","Fjob_services",0.092165819964139,0.0404105231352309,"Father: services","Math",FALSE
+"Ordinary regression","Fjob_teacher",-0.385397901565173,-0.0975810482731409,"Father: teacher","Math",FALSE
+"Ordinary regression","guardian_mother",-0.0594619376405195,-0.0272618437345963,"Guardian: mother","Math",FALSE
+"Ordinary regression","guardian_other",-0.248381025269809,-0.0707635575460326,"Guardian: other","Math",FALSE
+"Ordinary regression","famsup_yes",0.0693188838532986,0.0336267246391857,"Family support","Math",FALSE
+"Ordinary regression","internet_yes",0.0684562412936013,0.025727464530031,"Home internet","Math",FALSE
+"Ordinary regression","activities_yes",-0.248784656014427,-0.124497879428842,"Activities","Math",FALSE
+"Ordinary regression","romantic_yes",0.0245994473845379,0.0115226048399295,"Relationship","Math",FALSE
+"Ridge","age",0.0460281064713974,0.0571090108852745,"Age","Math",FALSE
+"Ridge","Medu",-0.00335836107285847,-0.00362576067965412,"Mother's education","Math",FALSE
+"Ridge","Fedu",0.0490315152272149,0.0540274520831168,"Father's education","Math",FALSE
+"Ridge","famrel",-0.115715883419592,-0.102730119009108,"Family relationships","Math",FALSE
+"Ridge","freetime",0.0677071273973669,0.0680725529305548,"Free time","Math",FALSE
+"Ridge","goout",0.274965546360886,0.314370357230199,"Going out","Math",FALSE
+"Ridge","sex_M",0.435191536938783,0.215726366632167,"Male","Math",FALSE
+"Ridge","address_U",-0.317991991360923,-0.130616218377206,"Urban address","Math",FALSE
+"Ridge","famsize_LE3",0.209052085923301,0.0954686195127768,"Family size <= 3","Math",FALSE
+"Ridge","Pstatus_T",0.120232148988057,0.0392857606829687,"Parents together","Math",FALSE
+"Ridge","Mjob_health",-0.16108006144135,-0.0439490903825696,"Mother: health","Math",FALSE
+"Ridge","Mjob_other",-0.0260386809411288,-0.0126314144905737,"Mother: other job","Math",FALSE
+"Ridge","Mjob_services",-0.0245885198743971,-0.010168474752673,"Mother: services","Math",FALSE
+"Ridge","Mjob_teacher",-0.0377512512858263,-0.0145784485987806,"Mother: teacher","Math",FALSE
+"Ridge","Fjob_health",-0.283664094243003,-0.071822497116016,"Father: health","Math",FALSE
+"Ridge","Fjob_other",-0.0324604898840653,-0.0161989497693116,"Father: other job","Math",FALSE
+"Ridge","Fjob_services",0.116844217608941,0.0512308788739823,"Father: services","Math",FALSE
+"Ridge","Fjob_teacher",-0.30673827203802,-0.0776647771287885,"Father: teacher","Math",FALSE
+"Ridge","guardian_mother",-0.0486084605955781,-0.022285790028358,"Guardian: mother","Math",FALSE
+"Ridge","guardian_other",-0.233763008533457,-0.0665988961456377,"Guardian: other","Math",FALSE
+"Ridge","famsup_yes",0.052829815378572,0.0256278456276633,"Family support","Math",FALSE
+"Ridge","internet_yes",0.0660232472944388,0.0248130881980503,"Home internet","Math",FALSE
+"Ridge","activities_yes",-0.225620704196819,-0.112906075791576,"Activities","Math",FALSE
+"Ridge","romantic_yes",0.0178399622768578,0.00835640055087943,"Relationship","Math",FALSE
+"LASSO","age",0.0264705098212988,0.0328430767505658,"Age","Math",TRUE
+"LASSO","Medu",0,0,"Mother's education","Math",TRUE
+"LASSO","Fedu",0.0128352205427423,0.014143031469367,"Father's education","Math",TRUE
+"LASSO","famrel",-0.0914656701324627,-0.0812012914759872,"Family relationships","Math",TRUE
+"LASSO","freetime",0.0502268417358405,0.0504979235425452,"Free time","Math",TRUE
+"LASSO","goout",0.276446682844863,0.316063752681873,"Going out","Math",TRUE
+"LASSO","sex_M",0.419340877432381,0.207869124719577,"Male","Math",TRUE
+"LASSO","address_U",-0.294248989464292,-0.120863705090981,"Urban address","Math",TRUE
+"LASSO","famsize_LE3",0.172032833764926,0.0785628953562997,"Family size <= 3","Math",TRUE
+"LASSO","Pstatus_T",0.0752784237305384,0.0245971661004146,"Parents together","Math",TRUE
+"LASSO","Mjob_health",-0.0532507607742725,-0.0145289396916527,"Mother: health","Math",TRUE
+"LASSO","Mjob_other",0,0,"Mother: other job","Math",TRUE
+"LASSO","Mjob_services",0,0,"Mother: services","Math",TRUE
+"LASSO","Mjob_teacher",0,0,"Mother: teacher","Math",TRUE
+"LASSO","Fjob_health",-0.187363145341604,-0.0474395217408697,"Father: health","Math",TRUE
+"LASSO","Fjob_other",0,0,"Father: other job","Math",TRUE
+"LASSO","Fjob_services",0.119752364322798,0.0525059690332917,"Father: services","Math",TRUE
+"LASSO","Fjob_teacher",-0.162510830842818,-0.0411470253599697,"Father: teacher","Math",TRUE
+"LASSO","guardian_mother",0,0,"Guardian: mother","Math",TRUE
+"LASSO","guardian_other",-0.10108982087118,-0.0288004099699858,"Guardian: other","Math",TRUE
+"LASSO","famsup_yes",0.0157292595879315,0.00763029425085695,"Family support","Math",TRUE
+"LASSO","internet_yes",0.0127503524991118,0.0047918821639562,"Home internet","Math",TRUE
+"LASSO","activities_yes",-0.182771882049347,-0.0914634853246035,"Activities","Math",TRUE
+"LASSO","romantic_yes",0,0,"Relationship","Math",TRUE
+"Ordinary regression","age",0.0508210363053039,0.0570554364062924,"Age","Portuguese",FALSE
+"Ordinary regression","Medu",-0.135069773144902,-0.153422927275317,"Mother's education","Portuguese",FALSE
+"Ordinary regression","Fedu",0.0689134834369456,0.0758878353900787,"Father's education","Portuguese",FALSE
+"Ordinary regression","famrel",-0.149136646045085,-0.141492092041266,"Family relationships","Portuguese",FALSE
+"Ordinary regression","freetime",-0.0234396869134147,-0.0258575094407068,"Free time","Portuguese",FALSE
+"Ordinary regression","goout",0.285581301188938,0.337976625964462,"Going out","Portuguese",FALSE
+"Ordinary regression","sex_M",0.445195935797763,0.219984148940739,"Male","Portuguese",FALSE
+"Ordinary regression","address_U",-0.0458357579604964,-0.0206935091017381,"Urban address","Portuguese",FALSE
+"Ordinary regression","famsize_LE3",0.195332057977308,0.0884164854136359,"Family size <= 3","Portuguese",FALSE
+"Ordinary regression","Pstatus_T",0.157391230796477,0.0518395849939116,"Parents together","Portuguese",FALSE
+"Ordinary regression","Mjob_health",-0.0691322804644819,-0.0184026063839973,"Mother: health","Portuguese",FALSE
+"Ordinary regression","Mjob_other",-0.0767635397255705,-0.0371656840458258,"Mother: other job","Portuguese",FALSE
+"Ordinary regression","Mjob_services",0.118545012288819,0.0489481248424869,"Mother: services","Portuguese",FALSE
+"Ordinary regression","Mjob_teacher",0.30318403630707,0.0972251403112901,"Mother: teacher","Portuguese",FALSE
+"Ordinary regression","Fjob_health",-0.158206971018665,-0.0326436833638174,"Father: health","Portuguese",FALSE
+"Ordinary regression","Fjob_other",0.0190437978419348,0.00942491739289723,"Father: other job","Portuguese",FALSE
+"Ordinary regression","Fjob_services",0.250981275952991,0.11145055440531,"Father: services","Portuguese",FALSE
+"Ordinary regression","Fjob_teacher",-0.111748595331322,-0.0242420443389329,"Father: teacher","Portuguese",FALSE
+"Ordinary regression","guardian_mother",-0.143158785106093,-0.0651301025548106,"Guardian: mother","Portuguese",FALSE
+"Ordinary regression","guardian_other",-0.214419561154666,-0.047601590968434,"Guardian: other","Portuguese",FALSE
+"Ordinary regression","famsup_yes",-0.125456295741093,-0.0602205810020873,"Family support","Portuguese",FALSE
+"Ordinary regression","internet_yes",0.0656116421900307,0.0281348717137655,"Home internet","Portuguese",FALSE
+"Ordinary regression","activities_yes",-0.0514316235500266,-0.0257299529978446,"Activities","Portuguese",FALSE
+"Ordinary regression","romantic_yes",0.0736327265883623,0.0352902055601452,"Relationship","Portuguese",FALSE
+"Ridge","age",0.0472204965135293,0.0530132053922728,"Age","Portuguese",FALSE
+"Ridge","Medu",-0.100077645393788,-0.113676102014803,"Mother's education","Portuguese",FALSE
+"Ridge","Fedu",0.0502467400828679,0.0553319343345293,"Father's education","Portuguese",FALSE
+"Ridge","famrel",-0.134122839426148,-0.127247873974473,"Family relationships","Portuguese",FALSE
+"Ridge","freetime",-0.0140182042501322,-0.0154641932752141,"Free time","Portuguese",FALSE
+"Ridge","goout",0.257924804726218,0.305246018877956,"Going out","Portuguese",FALSE
+"Ridge","sex_M",0.417583010295411,0.206339806241352,"Male","Portuguese",FALSE
+"Ridge","address_U",-0.0469003318737863,-0.0211741332027538,"Urban address","Portuguese",FALSE
+"Ridge","famsize_LE3",0.18637045295333,0.0843600410793558,"Family size <= 3","Portuguese",FALSE
+"Ridge","Pstatus_T",0.139819084917381,0.0460518880223902,"Parents together","Portuguese",FALSE
+"Ridge","Mjob_health",-0.10612787582106,-0.0282506162386486,"Mother: health","Portuguese",FALSE
+"Ridge","Mjob_other",-0.07603650948456,-0.0368136865177577,"Mother: other job","Portuguese",FALSE
+"Ridge","Mjob_services",0.0963740437933376,0.0397935656346169,"Mother: services","Portuguese",FALSE
+"Ridge","Mjob_teacher",0.22430424581875,0.0719299473606141,"Mother: teacher","Portuguese",FALSE
+"Ridge","Fjob_health",-0.141584149238004,-0.0292138083884785,"Father: health","Portuguese",FALSE
+"Ridge","Fjob_other",-0.00378225069593233,-0.00187186404015979,"Father: other job","Portuguese",FALSE
+"Ridge","Fjob_services",0.220821944252049,0.0980580245211554,"Father: services","Portuguese",FALSE
+"Ridge","Fjob_teacher",-0.114540643132558,-0.024847733801009,"Father: teacher","Portuguese",FALSE
+"Ridge","guardian_mother",-0.120553419554125,-0.0548457894014295,"Guardian: mother","Portuguese",FALSE
+"Ridge","guardian_other",-0.162468941465953,-0.0360684447589098,"Guardian: other","Portuguese",FALSE
+"Ridge","famsup_yes",-0.111931823301786,-0.0537286661624959,"Family support","Portuguese",FALSE
+"Ridge","internet_yes",0.0664435039392848,0.0284915816331891,"Home internet","Portuguese",FALSE
+"Ridge","activities_yes",-0.0382883535397899,-0.0191547042256095,"Activities","Portuguese",FALSE
+"Ridge","romantic_yes",0.062418757905367,0.0299156489152405,"Relationship","Portuguese",FALSE
+"LASSO","age",0.0196551024372408,0.0220662648520238,"Age","Portuguese",TRUE
+"LASSO","Medu",-0.0271265094140566,-0.0308124340788018,"Mother's education","Portuguese",TRUE
+"LASSO","Fedu",0,0,"Father's education","Portuguese",TRUE
+"LASSO","famrel",-0.11538519184025,-0.109470694272716,"Family relationships","Portuguese",TRUE
+"LASSO","freetime",0,0,"Free time","Portuguese",TRUE
+"LASSO","goout",0.247638715089016,0.293072750335947,"Going out","Portuguese",TRUE
+"LASSO","sex_M",0.425856431565198,0.21042794225185,"Male","Portuguese",TRUE
+"LASSO","address_U",0,0,"Urban address","Portuguese",TRUE
+"LASSO","famsize_LE3",0.127316936657923,0.0576296394431669,"Family size <= 3","Portuguese",TRUE
+"LASSO","Pstatus_T",0.0268590956715968,0.00884651810575021,"Parents together","Portuguese",TRUE
+"LASSO","Mjob_health",-0.0846425991276098,-0.0225313619715488,"Mother: health","Portuguese",TRUE
+"LASSO","Mjob_other",-0.0472914607642349,-0.0228965404033296,"Mother: other job","Portuguese",TRUE
+"LASSO","Mjob_services",0.00489209998731253,0.00201998478297419,"Mother: services","Portuguese",TRUE
+"LASSO","Mjob_teacher",0.00496815194490523,0.00159318833476443,"Mother: teacher","Portuguese",TRUE
+"LASSO","Fjob_health",0,0,"Father: health","Portuguese",TRUE
+"LASSO","Fjob_other",0,0,"Father: other job","Portuguese",TRUE
+"LASSO","Fjob_services",0.215550653087109,0.095717258977855,"Father: services","Portuguese",TRUE
+"LASSO","Fjob_teacher",0,0,"Father: teacher","Portuguese",TRUE
+"LASSO","guardian_mother",-0.0170149801826633,-0.00774096681138823,"Guardian: mother","Portuguese",TRUE
+"LASSO","guardian_other",0,0,"Guardian: other","Portuguese",TRUE
+"LASSO","famsup_yes",-0.0283591526529228,-0.0136127456928135,"Family support","Portuguese",TRUE
+"LASSO","internet_yes",0,0,"Home internet","Portuguese",TRUE
+"LASSO","activities_yes",0,0,"Activities","Portuguese",TRUE
+"LASSO","romantic_yes",0,0,"Relationship","Portuguese",TRUE
