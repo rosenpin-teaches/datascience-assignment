@@ -1,37 +1,26 @@
-# Research question 2 (robustness check): student profiles via Gower distance
-# + PAM (k-medoids), instead of Euclidean k-means on standardized dummies.
-#
-# Why: research_question_2.R's k-means treats each one-hot dummy column
-# (Mjob_health, Mjob_other, Mjob_services, Mjob_teacher, ...) as its own
-# standardized numeric variable. Rare categories get huge standardized
-# values (e.g. Mjob_health = +3.29 SD for the small group of students whose
-# mother works in health), which dominates squared Euclidean distance and
-# pulls the clustering toward parental job/education almost by construction.
-#
-# Fix: reconstruct the original categorical variables from their dummy
-# columns, then use Gower distance, which compares each ORIGINAL variable
-# (numeric, binary, or multi-category) on its own footing - a multi-level
-# category counts once, not once per dummy column, and no standardization-
-# driven inflation of rare categories.
+# Research question 2: Are there student profiles with different alcohol scores?
 #
 # Steps:
-# 1. Load train + test, reconstruct Mjob, Fjob, guardian as single factors.
-# 2. Compute Gower distance (cluster::daisy) over the reconstructed variables.
-# 3. Choose k via average silhouette width across candidate k (using PAM).
-# 4. Cluster with PAM (k-medoids - each cluster center is an actual student,
-#    which also makes profiles easier to describe/interpret).
-# 5. Describe profiles and test association with alc_score exactly as before
-#    (Kruskal-Wallis / ANOVA), for direct comparison with the k-means result.
+# 1. Combine the training and test files for each dataset.
+# 2. Cluster student inputs with k-means and compare with Gower + PAM.
+# 3. Choose the number of groups using silhouette scores, without alcohol.
+# 4. Describe the groups and compare alcohol scores using Kruskal-Wallis.
+# 5. Save tables. Run rq2_plots.R separately for figures.
 
 library(cluster)
-library(factoextra)
-library(ggplot2)
+library(dplyr)
 
-# Turn a set of one-hot dummy columns back into a single factor.
-# `reference_level` is the category that was dropped during dummy-coding
-# (i.e. the student is that category if every dummy in `cols` is 0).
+output_dir <- file.path("outputs", "rq2")
+dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
+numeric_vars <- c("age", "Medu", "Fedu", "famrel", "freetime", "goout")
+binary_vars <- c("sex_M", "address_U", "famsize_LE3", "Pstatus_T",
+                 "famsup_yes", "internet_yes", "activities_yes", "romantic_yes")
+nominal_vars <- c("Mjob", "Fjob", "guardian")
+
+# The dropped category applies when all its dummy columns are zero.
 reconstruct_factor <- function(df, cols, reference_level) {
-  levels_found <- sub(".*_", "", cols)  # e.g. "Mjob_health" -> "health"
+  levels_found <- sub(".*_", "", cols)
   out <- rep(reference_level, nrow(df))
   for (i in seq_along(cols)) {
     out[df[[cols[i]]] == 1] <- levels_found[i]
@@ -39,116 +28,148 @@ reconstruct_factor <- function(df, cols, reference_level) {
   factor(out)
 }
 
-profile_dataset_gower <- function(train_file, test_file, dataset_name, k_range = 2:6) {
-  train <- read.csv(train_file, check.names = FALSE)
-  test  <- read.csv(test_file, check.names = FALSE)
-  full  <- rbind(train, test)
-  
-  # --- Reconstruct original variables from dummy columns ---
-  full$Mjob <- reconstruct_factor(
-    full, c("Mjob_health", "Mjob_other", "Mjob_services", "Mjob_teacher"),
-    reference_level = "at_home"
-  )
-  full$Fjob <- reconstruct_factor(
-    full, c("Fjob_health", "Fjob_other", "Fjob_services", "Fjob_teacher"),
-    reference_level = "at_home"
-  )
-  full$guardian <- reconstruct_factor(
-    full, c("guardian_mother", "guardian_other"),
-    reference_level = "father"
-  )
-  
-  # Remaining binary 0/1 variables -> factors (not left as raw numeric),
-  # so Gower treats them as categorical, not as a 0-1 numeric range.
-  binary_vars <- c("sex_M", "address_U", "famsize_LE3", "Pstatus_T",
-                   "famsup_yes", "internet_yes", "activities_yes", "romantic_yes")
-  for (v in binary_vars) full[[v]] <- factor(full[[v]])
-  
-  # Numeric/ordinal variables stay numeric; Gower range-normalizes them
-  # internally, so no manual standardization is needed here.
-  numeric_vars <- c("age", "Medu", "Fedu", "famrel", "freetime", "goout")
-  
-  cluster_vars <- c(numeric_vars, binary_vars, "Mjob", "Fjob", "guardian")
-  cluster_data <- full[, cluster_vars]
-  
-  cat("\n==", dataset_name, ": ", nrow(full), " students total ==\n", sep = "")
-  
-  # --- Gower distance ---
-  gower_dist <- daisy(cluster_data, metric = "gower")
-  
-  # --- Choose k via average silhouette width (PAM) ---
-  sil_widths <- sapply(k_range, function(k) {
-    pam(gower_dist, diss = TRUE, k = k)$silinfo$avg.width
-  })
-  best_k <- k_range[which.max(sil_widths)]
-  cat("Silhouette width by k:\n")
-  print(round(setNames(sil_widths, k_range), 3))
-  cat("Chosen number of profiles: ", best_k, "\n", sep = "")
-  
-  # --- Cluster with PAM ---
-  pam_fit <- pam(gower_dist, diss = TRUE, k = best_k)
-  full$profile <- factor(pam_fit$clustering)
-  
-  cat("\nProfile sizes:\n")
-  print(table(full$profile))
-  
-  # Medoids: the actual "most representative" student for each profile
-  cat("\nMedoid (representative student) characteristics per profile:\n")
-  print(cluster_data[pam_fit$medoids, ])
-  
-  # Describe profiles: means for numeric vars, proportions for categorical
-  cat("\nNumeric variable means per profile:\n")
-  print(aggregate(full[, numeric_vars], by = list(profile = full$profile), FUN = mean))
-  
-  cat("\nCategory breakdown per profile (Mjob, Fjob, guardian):\n")
-  for (v in c("Mjob", "Fjob", "guardian")) {
-    cat("\n", v, ":\n", sep = "")
-    print(prop.table(table(full$profile, full[[v]]), margin = 1))
-  }
-  
-  # --- Alcohol consumption by profile ---
-  cat("\nAlcohol score by profile:\n")
-  print(aggregate(alc_score ~ profile, data = full, FUN = function(v)
-    c(mean = round(mean(v), 2), sd = round(sd(v), 2), n = length(v))))
-  
-  aov_fit <- aov(alc_score ~ profile, data = full)
-  cat("\nANOVA (alc_score ~ profile):\n")
-  print(summary(aov_fit))
-  
+describe_profiles <- function(full, groups, distance, coordinates,
+                              method, dataset_name, file_prefix) {
+  full$profile <- factor(groups)
+  silhouette_values <- silhouette(groups, distance)[, 3]
+  alcohol <- full %>% group_by(profile) %>%
+    summarise(n = n(), mean = mean(alc_score), sd = sd(alc_score),
+              median = median(alc_score), IQR = IQR(alc_score), .groups = "drop")
+  alcohol$dataset <- dataset_name
+  alcohol$method <- method
+
+  # Alcohol was not used to choose the groups or their number.
   kw <- kruskal.test(alc_score ~ profile, data = full)
-  cat("\nKruskal-Wallis test:\n")
-  print(kw)
-  
+  tests <- data.frame(
+    dataset = dataset_name, method = method, n = nrow(full),
+    k = nlevels(full$profile), silhouette = mean(silhouette_values),
+    negative_silhouette_percent = mean(silhouette_values < 0) * 100,
+    H = unname(kw$statistic), df = unname(kw$parameter), p = kw$p.value
+  )
+  pairwise <- data.frame(group1 = character(), group2 = character(), adjusted_p = numeric())
   if (kw$p.value < 0.05) {
-    cat("\nSignificant overall difference - pairwise comparisons",
-        "(Wilcoxon, Bonferroni-corrected):\n")
-    print(pairwise.wilcox.test(full$alc_score, full$profile,
-                               p.adjust.method = "bonferroni"))
-  } else {
-    cat("\nNo significant overall difference between profiles at alpha = 0.05.\n")
+    # Use approximate Wilcoxon p-values because alcohol ratings contain ties.
+    pw <- pairwise.wilcox.test(full$alc_score, full$profile,
+                               p.adjust.method = "bonferroni", exact = FALSE)
+    pairwise <- as.data.frame(as.table(pw$p.value))
+    names(pairwise) <- c("group1", "group2", "adjusted_p")
+    pairwise <- pairwise[!is.na(pairwise$adjusted_p), ]
   }
-  
-  # --- Visualize ---
-  # fviz_cluster can plot a PAM result directly from the dissimilarity matrix
-  p1 <- fviz_cluster(pam_fit, data = gower_dist,
-                     geom = "point", ellipse.type = "convex",
-                     main = paste0(dataset_name, ": PAM profiles (Gower distance)"))
-  print(p1)
-  
-  p2 <- ggplot(full, aes(x = profile, y = alc_score, fill = profile)) +
-    geom_boxplot(outlier.alpha = 0.4) +
-    labs(title = paste0(dataset_name, ": alcohol score by profile (Gower + PAM)"),
-         x = "Profile", y = "Alcohol score (1-5)") +
-    theme_minimal() +
-    theme(legend.position = "none")
-  print(p2)
-  
-  invisible(full)
+  pairwise$dataset <- rep(dataset_name, nrow(pairwise))
+  pairwise$method <- rep(method, nrow(pairwise))
+
+  # Keep numeric summaries on their original scales for interpretation.
+  numeric_summary <- data.frame()
+  category_summary <- data.frame()
+  standardized_numeric <- as.data.frame(scale(full[, numeric_vars]))
+  for (profile in levels(full$profile)) {
+    rows <- full$profile == profile
+    values <- full[rows, numeric_vars]
+    numeric_summary <- rbind(numeric_summary, data.frame(
+      profile = profile, variable = numeric_vars,
+      mean = sapply(values, mean), sd = sapply(values, sd),
+      median = sapply(values, median), IQR = sapply(values, IQR),
+      standardized_mean = sapply(standardized_numeric[rows, ], mean)
+    ))
+    for (variable in c(binary_vars, nominal_vars)) {
+      counts <- table(full[rows, variable])
+      category_summary <- rbind(category_summary, data.frame(
+        profile = profile, variable = variable, category = names(counts),
+        n = as.numeric(counts), percent = as.numeric(counts) / sum(rows) * 100
+      ))
+    }
+  }
+  numeric_summary$dataset <- dataset_name
+  numeric_summary$method <- method
+  category_summary$dataset <- dataset_name
+  category_summary$method <- method
+
+  cat("\n", dataset_name, " ", method, "\n", sep = "")
+  print(tests, row.names = FALSE)
+  print(alcohol, row.names = FALSE)
+  if (nrow(pairwise) > 0) print(pairwise, row.names = FALSE)
+
+  assignments <- data.frame(prepared_row = seq_len(nrow(full)),
+                             profile = full$profile, alc_score = full$alc_score,
+                             dimension1 = coordinates[, 1], dimension2 = coordinates[, 2])
+  write.csv(assignments, file.path(output_dir, paste0(file_prefix, "_assignments.csv")),
+            row.names = FALSE)
+  list(alcohol = alcohol, tests = tests, pairwise = pairwise,
+       numeric = numeric_summary, categories = category_summary, students = full)
 }
 
-math_profiles_gower <- profile_dataset_gower(
-  "data/processed/Math_train.csv", "data/processed/Math_test.csv", "Math"
-)
-lang_profiles_gower <- profile_dataset_gower(
-  "data/processed/Lang_train.csv", "data/processed/Lang_test.csv", "Portuguese"
-)
+profile_dataset <- function(train_file, test_file, dataset_name, file_prefix, k_range = 2:10) {
+  full <- rbind(read.csv(train_file, check.names = FALSE),
+                read.csv(test_file, check.names = FALSE))
+  inputs <- setdiff(names(full), "alc_score")
+
+  # Restore all categories for clustering, then standardize inputs as in Lecture 6.
+  # Unlike regression, clustering does not need a dropped reference category.
+  kmeans_data <- full[, inputs]
+  mother_jobs <- c("Mjob_health", "Mjob_other", "Mjob_services", "Mjob_teacher")
+  father_jobs <- c("Fjob_health", "Fjob_other", "Fjob_services", "Fjob_teacher")
+  guardians <- c("guardian_mother", "guardian_other")
+  kmeans_data$Mjob_at_home <- 1 - rowSums(full[, mother_jobs])
+  kmeans_data$Fjob_at_home <- 1 - rowSums(full[, father_jobs])
+  kmeans_data$guardian_father <- 1 - rowSums(full[, guardians])
+  kmeans_data <- scale(kmeans_data)
+  euclidean <- dist(kmeans_data)
+  fits <- list()
+  choices <- data.frame()
+  for (k in k_range) {
+    set.seed(123)
+    fits[[as.character(k)]] <- kmeans(kmeans_data, centers = k, nstart = 25, iter.max = 100)
+    fit <- fits[[as.character(k)]]
+    choices <- rbind(choices, data.frame(
+      method = "K-means", k = k,
+      silhouette = mean(silhouette(fit$cluster, euclidean)[, 3]),
+      within_ss = fit$tot.withinss
+    ))
+  }
+  best_k <- choices$k[which.max(choices$silhouette)]
+  best_kmeans <- fits[[as.character(best_k)]]
+  # Save two-dimensional coordinates for visualizing the already fitted groups.
+  pca <- prcomp(kmeans_data, center = TRUE, scale. = FALSE)
+  full$Mjob <- reconstruct_factor(full, mother_jobs, "at_home")
+  full$Fjob <- reconstruct_factor(full, father_jobs, "at_home")
+  full$guardian <- reconstruct_factor(full, guardians, "father")
+  km <- describe_profiles(full, best_kmeans$cluster, euclidean, pca$x[, 1:2],
+                          "K-means", dataset_name, paste0(file_prefix, "_kmeans"))
+
+  # Gower + PAM is an additional mixed-data comparison, not the lecture method.
+  # Reconstruct single nominal fields so jobs and guardian each count once.
+  mixed_data <- full[, c(numeric_vars, binary_vars, nominal_vars)]
+  for (variable in binary_vars) mixed_data[[variable]] <- factor(mixed_data[[variable]])
+  gower <- daisy(mixed_data, metric = "gower")
+  pam_choices <- data.frame()
+  pam_fits <- list()
+  for (k in k_range) {
+    fit <- pam(gower, diss = TRUE, k = k)
+    pam_fits[[as.character(k)]] <- fit
+    pam_choices <- rbind(pam_choices, data.frame(
+      method = "Gower + PAM", k = k, silhouette = fit$silinfo$avg.width, within_ss = NA
+    ))
+  }
+  best_pam_k <- pam_choices$k[which.max(pam_choices$silhouette)]
+  best_pam <- pam_fits[[as.character(best_pam_k)]]
+  pam_map <- cmdscale(gower, k = 2, add = TRUE)$points
+  pam_result <- describe_profiles(full, best_pam$clustering, gower, pam_map,
+                                 "Gower + PAM", dataset_name, paste0(file_prefix, "_pam"))
+  write.csv(mixed_data[best_pam$medoids, ],
+            file.path(output_dir, paste0(file_prefix, "_pam_medoids.csv")), row.names = FALSE)
+
+  choices <- rbind(choices, pam_choices)
+  choices$dataset <- dataset_name
+  list(kmeans = km, pam = pam_result, choices = choices,
+       kmeans_fit = best_kmeans, pam_fit = best_pam)
+}
+
+math_profiles <- profile_dataset("data/processed/Math_train.csv", "data/processed/Math_test.csv", "Math", "math")
+portuguese_profiles <- profile_dataset("data/processed/Lang_train.csv", "data/processed/Lang_test.csv", "Portuguese", "portuguese")
+for (table_name in c("alcohol", "tests", "pairwise", "numeric", "categories")) {
+  result <- rbind(math_profiles$kmeans[[table_name]], math_profiles$pam[[table_name]],
+                  portuguese_profiles$kmeans[[table_name]], portuguese_profiles$pam[[table_name]])
+  write.csv(result, file.path(output_dir, paste0("profile_", table_name, ".csv")), row.names = FALSE)
+}
+write.csv(rbind(math_profiles$choices, portuguese_profiles$choices),
+          file.path(output_dir, "cluster_choices.csv"), row.names = FALSE)
