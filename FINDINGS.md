@@ -20,7 +20,7 @@ Bars show coefficients per input SD, holding the other inputs constant. An absen
 
 ## RQ2: Are there student profiles?
 
-Clustering used all students within each dataset, with alcohol excluded. K-means used standardized inputs and 25 starts. The number of groups was chosen by silhouette score from 2 to 6.
+Clustering used all students within each dataset, with alcohol excluded. K-means used standardized inputs and 25 starts. The number of groups was chosen by silhouette score from 2 to 10.
 
 ![Clustering results for the two separate datasets](outputs/report/clustering_results.png)
 
@@ -36,4 +36,4 @@ Eliska's Gower + PAM analysis is an extra comparison, not a taught course method
 - The data describe current associations, not causes or future risk.
 - One MICE version per dataset was used. Imputation was not repeated inside each CV fold, although test students were excluded from fitting.
 - Ratings are ordinal; averages and numerical models assume equally spaced steps.
-- Math k-means chose 6, the largest number tested. This is not an established optimum. Checking with 10 now
+- K-means chose 7 groups for Math and 9 for Portuguese. These are the best tested options, not established optima.

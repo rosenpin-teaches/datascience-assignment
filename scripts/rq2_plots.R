@@ -18,7 +18,8 @@ numeric_labels <- c(age = "Age", Medu = "Mother's education", Fedu = "Father's e
                     famrel = "Family relationships", freetime = "Free time", goout = "Going out")
 social_labels <- c(sex_M = "Male", activities_yes = "Activities",
                    famsup_yes = "Family support", romantic_yes = "Relationship")
-profile_colors <- c("#4477AA", "#EE6677", "#228833", "#CCBB44", "#AA3377", "#66CCEE")
+profile_colors <- c("#4477AA", "#EE6677", "#228833", "#CCBB44", "#AA3377", "#66CCEE",
+                    "#EE8866", "#999933", "#882255", "#888888")
 kmeans_students <- data.frame()
 set.seed(123)
 

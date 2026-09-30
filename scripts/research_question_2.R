@@ -98,7 +98,7 @@ describe_profiles <- function(full, groups, distance, coordinates,
        numeric = numeric_summary, categories = category_summary, students = full)
 }
 
-profile_dataset <- function(train_file, test_file, dataset_name, file_prefix, k_range = 2:6) {
+profile_dataset <- function(train_file, test_file, dataset_name, file_prefix, k_range = 2:10) {
   full <- rbind(read.csv(train_file, check.names = FALSE),
                 read.csv(test_file, check.names = FALSE))
   inputs <- setdiff(names(full), "alc_score")
