@@ -19,7 +19,7 @@ RQ1 compares ordinary regression, ridge, and LASSO with simple mean and median p
 
 For the second question, run `scripts/research_question_2.R`, then `scripts/rq2_plots.R` for figures. K-means is the main course analysis; Gower + PAM is an additional comparison. Alcohol is excluded from clustering. Results are saved in `outputs/rq2/`.
 
-[FINDINGS.md](FINDINGS.md) contains the results, interpretation, and suggested figures for the report.
+Run `scripts/report_tables.R` to create table images. [FINDINGS.md](FINDINGS.md) gives a short summary with figures for the report.
 
 ## First time only
 
