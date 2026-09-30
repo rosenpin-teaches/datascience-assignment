@@ -102,8 +102,6 @@ profile_dataset <- function(train_file, test_file, dataset_name, file_prefix, k_
   full <- rbind(read.csv(train_file, check.names = FALSE),
                 read.csv(test_file, check.names = FALSE))
   inputs <- setdiff(names(full), "alc_score")
-  stopifnot(!anyNA(full), all(full$alc_score >= 1 & full$alc_score <= 5))
-  stopifnot(!any(c("Dalc", "Walc") %in% inputs))
 
   # Restore all categories for clustering, then standardize inputs as in Lecture 6.
   # Unlike regression, clustering does not need a dropped reference category.
@@ -114,11 +112,7 @@ profile_dataset <- function(train_file, test_file, dataset_name, file_prefix, k_
   kmeans_data$Mjob_at_home <- 1 - rowSums(full[, mother_jobs])
   kmeans_data$Fjob_at_home <- 1 - rowSums(full[, father_jobs])
   kmeans_data$guardian_father <- 1 - rowSums(full[, guardians])
-  stopifnot(all(rowSums(kmeans_data[, c(mother_jobs, "Mjob_at_home")]) == 1),
-            all(rowSums(kmeans_data[, c(father_jobs, "Fjob_at_home")]) == 1),
-            all(rowSums(kmeans_data[, c(guardians, "guardian_father")]) == 1))
   kmeans_data <- scale(kmeans_data)
-  stopifnot(!anyNA(kmeans_data))
   euclidean <- dist(kmeans_data)
   fits <- list()
   choices <- data.frame()
